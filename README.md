@@ -67,3 +67,45 @@ This project would not have been possible without the following amazing projects
 * [Font Awesome](https://fontawesome.com/): nice icons
 
 And of course [OpenStreetMap](https://www.openstreetmap.org/) for the worldwide map data on which are based most of the map layers and the routing server.
+
+---
+
+## Running with Docker (with Backend and Database)
+
+This application has been updated to include a backend service for persistent data storage. You can run the entire application stack (frontend, backend, and database) using Docker Compose.
+
+### Prerequisites
+
+*   [Docker](https://docs.docker.com/get-docker/)
+*   [Docker Compose](https://docs.docker.com/compose/install/)
+
+### Running the Application
+
+1.  **Clone the repository:**
+    ```sh
+    git clone <repository-url>
+    cd <repository-directory>
+    ```
+
+2.  **Build and start the services:**
+    ```sh
+    docker-compose up --build
+    ```
+    This command will build the Docker images for the frontend and backend services and start them.
+
+3.  **Access the application:**
+    *   The frontend is available at `http://localhost:8080`.
+    *   The backend API is running on `http://localhost:3000`, but the frontend is configured to proxy requests to it, so you don't need to access it directly.
+
+4.  **Using the Database Feature:**
+    *   Open the application at `http://localhost:8080`.
+    *   Load or create a GPX trace.
+    *   Click the "Database" button in the toolbar.
+    *   Click "Save Current Trace to DB" to save your work. The trace will now appear in the list of saved traces.
+    *   You can load or delete traces from this popup. Your data will be persisted in a Docker volume.
+
+5.  **Stopping the application:**
+    ```sh
+    docker-compose down
+    ```
+    To stop and remove the containers. To also remove the database volume (deleting all saved data), use `docker-compose down -v`.

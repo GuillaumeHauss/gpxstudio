@@ -79,6 +79,7 @@
             <div id="load" class="panels custom-button">Load GPX</div>
             <div id="manual" class="panels custom-button">New GPX</div>
             <div id="export" class="panels custom-button">Export</div>
+            <div id="db" class="panels custom-button">Database</div>
             <div style="display: inline-block">
                 <div class="panels custom-button unselected no-click2" id="undo"><i class="fas fa-reply"></i></div>
                 <div class="panels custom-button unselected no-click2" id="redo"><i class="fas fa-share"></i></div>
@@ -641,6 +642,14 @@
         <h1>edit Strava activity</h1>
         <h1>correct Strava activity</h1>
         <h1>merge Strava activities</h1>
+        <div id="db-content" class="popup-content">
+            <div id="save-db" class="panels custom-button fancy-button">Save Current Trace to DB</div>
+            <hr>
+            <h4>Saved Traces</h4>
+            <ul id="db-trace-list" style="list-style-type: none; padding: 0; max-height: 200px; overflow-y: auto;">
+                <!-- Traces will be populated here by JavaScript -->
+            </ul>
+        </div>
         <div id="new-website-text" style="text-align: left; width:fit-content; max-width: 80dvw; white-space: wrap; padding: 6px;">
             <p style="text-align: center;"><b>BIG NEWS!</b> 🎉</p>
 

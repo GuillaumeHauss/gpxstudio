@@ -123,6 +123,7 @@ export default class Buttons {
         this.crop_keep = document.getElementById("crop-keep");
         this.layer_selection_ok = document.getElementById("layer-selection-ok");
         this.export = document.getElementById("export");
+        this.db = document.getElementById("db");
         this.export2 = document.getElementById("export-2");
         this.save_drive = document.getElementById("save-drive");
         this.chevrons = document.getElementById("chevrons");
@@ -266,6 +267,10 @@ export default class Buttons {
         // WINDOWS
         this.help_window = L.control.window(this.map, { title: '', content: this.help_text, className: 'panels-container' });
         this.new_website_window = L.control.window(this.map, { title: '', content: this.new_website_text, className: 'panels-container' });
+        this.db_content = document.getElementById('db-content');
+        this.save_db_button = document.getElementById('save-db');
+        this.db_trace_list = document.getElementById('db-trace-list');
+        this.db_window = L.control.window(this.map, { title: 'Database', content: this.db_content, className: 'panels-container' });
         this.export_window = L.control.window(this.map, { title: '', content: this.export_content, className: 'panels-container' });
         this.clear_window = L.control.window(this.map, { title: '', content: this.clear_content, className: 'panels-container', closeButton: false });
         this.delete_window = L.control.window(this.map, { title: '', content: this.delete_content, className: 'panels-container', closeButton: false });
@@ -2155,6 +2160,204 @@ export default class Buttons {
             }
         });
         this.google = new Google(this);
+
+        this.db.addEventListener("click", function () {
+            if (buttons.window_open) buttons.window_open.hide();
+            buttons.window_open = buttons.db_window;
+            buttons.db_window.show();
+            buttons.populateTraceList();
+        });
+
+        this.save_db_button.addEventListener("click", async function () {
+            if (total.hasFocus || total.traces.length === 0) {
+                alert("Please focus on a single trace to save.");
+                return;
+            }
+            const trace = total.traces[total.focusOn];
+            const traceJSON = buttons.serializeTrace(trace);
+
+            try {
+                const response = await fetch('http://localhost:3000/api/traces', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(traceJSON),
+                });
+                if (response.ok) {
+                    alert('Trace saved successfully!');
+                    buttons.populateTraceList();
+                } else {
+                    alert('Error saving trace: ' + await response.text());
+                }
+            } catch (e) {
+                console.error("Error saving trace:", e);
+                alert('Error saving trace. Make sure the backend server is running.');
+            }
+        });
+    }
+
+    async populateTraceList() {
+        try {
+            const response = await fetch('http://localhost:3000/api/traces');
+            if (response.ok) {
+                const traces = await response.json();
+                this.db_trace_list.innerHTML = ''; // Clear existing list
+                traces.forEach(trace => {
+                    const li = document.createElement('li');
+                    li.style.display = 'flex';
+                    li.style.justifyContent = 'space-between';
+                    li.style.padding = '5px';
+
+                    const nameSpan = document.createElement('span');
+                    nameSpan.textContent = trace.name;
+                    li.appendChild(nameSpan);
+
+                    const buttonsDiv = document.createElement('div');
+
+                    const loadButton = document.createElement('button');
+                    loadButton.textContent = 'Load';
+                    loadButton.classList.add('custom-button', 'normal-button');
+                    loadButton.style.marginLeft = '10px';
+                    loadButton.onclick = () => this.loadTrace(trace.id);
+                    buttonsDiv.appendChild(loadButton);
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.classList.add('custom-button', 'normal-button');
+                    deleteButton.style.marginLeft = '5px';
+                    deleteButton.onclick = () => this.deleteTrace(trace.id);
+                    buttonsDiv.appendChild(deleteButton);
+
+                    li.appendChild(buttonsDiv);
+                    this.db_trace_list.appendChild(li);
+                });
+            } else {
+                this.db_trace_list.innerHTML = '<li>Error loading traces.</li>';
+            }
+        } catch (e) {
+            console.error("Error fetching traces:", e);
+            this.db_trace_list.innerHTML = '<li>Could not connect to the server.</li>';
+        }
+    }
+
+    async loadTrace(id) {
+        try {
+            const response = await fetch(`http://localhost:3000/api/traces/${id}`);
+            if (response.ok) {
+                const traceData = await response.json();
+
+                // This is a complex operation. For now, we'll create a new trace
+                // and manually populate it. A full implementation would require a
+                // robust deserialization method.
+                const newTrace = this.total.addTrace(undefined, traceData.name);
+
+                const tracks = traceData.Tracks.map(trackData => {
+                    const segments = trackData.Segments.map(segmentData => {
+                        const points = segmentData.Points.map(pointData => {
+                            const pt = new L.LatLng(pointData.lat, pointData.lng);
+                            pt.meta = {
+                                ele: pointData.ele,
+                                time: pointData.time ? new Date(pointData.time) : null,
+                                hr: pointData.hr,
+                                cad: pointData.cad,
+                                atemp: pointData.atemp,
+                                power: pointData.power,
+                                surface: pointData.surface,
+                            };
+                            return pt;
+                        });
+                        return new L.Polyline(points);
+                    });
+                    const track = new L.FeatureGroup(segments);
+                    track.name = trackData.name;
+                    return track;
+                });
+
+                newTrace.gpx.getLayers()[0].addLayer(new L.FeatureGroup(tracks));
+
+                const waypoints = traceData.Waypoints.map(waypointData => {
+                    const latlng = new L.LatLng(waypointData.lat, waypointData.lng);
+                    latlng.meta = { ele: waypointData.ele };
+                    return this.gpx._get_marker(latlng, waypointData.sym, waypointData.name, waypointData.desc, waypointData.cmt, this.gpx.options);
+                });
+                if (waypoints.length > 0) {
+                     newTrace.gpx.getLayers()[0].addLayer(new L.FeatureGroup(waypoints));
+                }
+
+                newTrace.recomputeStats();
+                newTrace.update();
+                newTrace.focus();
+                this.db_window.hide();
+                alert('Trace loaded successfully!');
+
+            } else {
+                alert('Error loading trace.');
+            }
+        } catch (e) {
+            console.error("Error loading trace:", e);
+            alert('Error loading trace. Could not connect to server.');
+        }
+    }
+
+    async deleteTrace(id) {
+        if (!confirm('Are you sure you want to delete this trace?')) {
+            return;
+        }
+        try {
+            const response = await fetch(`http://localhost:3000/api/traces/${id}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                alert('Trace deleted successfully!');
+                this.populateTraceList();
+            } else {
+                alert('Error deleting trace.');
+            }
+        } catch (e) {
+            console.error("Error deleting trace:", e);
+            alert('Error deleting trace. Could not connect to server.');
+        }
+    }
+
+    serializeTrace(trace) {
+        const tracks = trace.getTracks().map(track => {
+            const segments = trace.getSegments(track).map(segment => {
+                const points = segment._latlngs.map(pt => {
+                    return {
+                        lat: pt.lat,
+                        lng: pt.lng,
+                        ele: pt.meta.ele,
+                        time: pt.meta.time,
+                        hr: pt.meta.hr,
+                        cad: pt.meta.cad,
+                        atemp: pt.meta.atemp,
+                        power: pt.meta.power,
+                        surface: pt.meta.surface,
+                    };
+                });
+                return { points };
+            });
+            return { name: track.name, segments };
+        });
+
+        const waypoints = trace.getWaypoints().map(wpt => {
+            return {
+                lat: wpt._latlng.lat,
+                lng: wpt._latlng.lng,
+                ele: wpt._latlng.meta.ele,
+                name: wpt.name,
+                cmt: wpt.cmt,
+                desc: wpt.desc,
+                sym: wpt.sym,
+            };
+        });
+
+        return {
+            name: trace.name,
+            tracks,
+            waypoints,
+        };
     }
 
     focusTabElement(tab) {
