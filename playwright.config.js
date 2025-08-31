@@ -9,7 +9,8 @@ module.exports = defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:8080',
+    // The baseURL needs to point to the service hostname inside the Docker network.
+    baseURL: 'http://frontend:80',
     trace: 'on-first-retry',
   },
   projects: [
@@ -18,10 +19,5 @@ module.exports = defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'docker-compose up --build',
-    url: 'http://localhost:8080',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-  },
+  // The webServer block is no longer needed, as Docker Compose handles starting the services.
 });

@@ -70,9 +70,9 @@ And of course [OpenStreetMap](https://www.openstreetmap.org/) for the worldwide 
 
 ---
 
-## Running with Docker (with Backend and Database)
+## Running with Docker
 
-This application has been updated to include a backend service for persistent data storage. You can run the entire application stack (frontend, backend, and database) using Docker Compose.
+This application and its backend services are fully containerized using Docker.
 
 ### Prerequisites
 
@@ -81,64 +81,37 @@ This application has been updated to include a backend service for persistent da
 
 ### Running the Application
 
-1.  **Clone the repository:**
-    ```sh
-    git clone <repository-url>
-    cd <repository-directory>
-    ```
+From the root of the repository, run the following command:
+```sh
+docker-compose up --build
+```
+This command will:
+1.  Build the images for the `frontend` and `backend` services.
+2.  Start all services.
 
-2.  **Build and start the services:**
-    ```sh
-    docker-compose up --build
-    ```
-    This command will build the Docker images for the frontend and backend services and start them.
+You can then access the application at `http://localhost:8080`.
 
-3.  **Access the application:**
-    *   The frontend is available at `http://localhost:8080`.
-    *   The backend API is running on `http://localhost:3000`, but the frontend is configured to proxy requests to it, so you don't need to access it directly.
+To stop the services, press `Ctrl+C` in the terminal, or run `docker-compose down` from another terminal. To remove the database volume and all saved data, run `docker-compose down -v`.
 
-4.  **Using the Database Feature:**
-    *   Open the application at `http://localhost:8080`.
-    *   Load or create a GPX trace.
-    *   Click the "Database" button in the toolbar.
-    *   Click "Save Current Trace to DB" to save your work. The trace will now appear in the list of saved traces.
-    *   You can load or delete traces from this popup. Your data will be persisted in a Docker volume.
+### Running Tests
 
-5.  **Stopping the application:**
-    ```sh
-    docker-compose down
-    ```
-    To stop and remove the containers. To also remove the database volume (deleting all saved data), use `docker-compose down -v`.
-
-### Testing
-
-The application now includes a backend unit test suite and a frontend end-to-end (E2E) test suite.
+The repository is configured with backend unit tests (Jest) and frontend end-to-end tests (Playwright). Both can be run via Docker Compose.
 
 #### Backend Tests
 
-The backend tests use Jest and Supertest to test the API endpoints in isolation with an in-memory SQLite database.
-
-**To run the backend tests:**
-
-1.  Ensure the Docker containers are not running (`docker-compose down`).
-2.  Run the following command from the root directory:
-    ```sh
-    docker-compose run --rm backend npm test
-    ```
-    This command starts a temporary container for the backend service and runs the Jest test suite.
+To run the backend API tests, use the following command:
+```sh
+docker-compose run --rm backend npm test
+```
+This will start a temporary container for the backend service and execute the Jest test suite against an in-memory database.
 
 #### Frontend End-to-End (E2E) Tests
 
-The E2E tests use Playwright to simulate real user interactions in a browser.
-
-**To run the E2E tests:**
-
-1.  Ensure you have installed the root-level npm dependencies:
-    ```sh
-    npm install
-    ```
-2.  Run the tests from the root directory:
-    ```sh
-    npm run test:e2e
-    ```
-    Playwright is configured to automatically build and start the required Docker containers, run the tests against them, and shut them down.
+To run the full E2E test suite, use the following command:
+```sh
+docker-compose run --rm e2e-tests
+```
+This command will:
+1.  Start the `frontend` and `backend` services if they are not already running.
+2.  Run the Playwright tests in a dedicated container.
+3.  Test results and reports will be saved to the `playwright-report` and `test-results` directories.
