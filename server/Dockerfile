@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as a parent image
-FROM node:18
+FROM node:18-alpine
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install build dependencies for native modules (like sqlite3)
-RUN apt-get update || : && apt-get install python3 -y make g++
+RUN apk add --no-cache python3 make g++
 
 # Install any needed packages
 RUN npm install

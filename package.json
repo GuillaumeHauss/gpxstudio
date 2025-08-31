@@ -1,0 +1,14 @@
+{
+  "name": "gpx-studio-e2e-tests",
+  "version": "1.0.0",
+  "description": "E2E tests for gpx.studio",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Use test:server or test:e2e\"",
+    "test:e2e": "playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {}
+}

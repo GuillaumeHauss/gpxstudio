@@ -109,3 +109,36 @@ This application has been updated to include a backend service for persistent da
     docker-compose down
     ```
     To stop and remove the containers. To also remove the database volume (deleting all saved data), use `docker-compose down -v`.
+
+### Testing
+
+The application now includes a backend unit test suite and a frontend end-to-end (E2E) test suite.
+
+#### Backend Tests
+
+The backend tests use Jest and Supertest to test the API endpoints in isolation with an in-memory SQLite database.
+
+**To run the backend tests:**
+
+1.  Ensure the Docker containers are not running (`docker-compose down`).
+2.  Run the following command from the root directory:
+    ```sh
+    docker-compose run --rm backend npm test
+    ```
+    This command starts a temporary container for the backend service and runs the Jest test suite.
+
+#### Frontend End-to-End (E2E) Tests
+
+The E2E tests use Playwright to simulate real user interactions in a browser.
+
+**To run the E2E tests:**
+
+1.  Ensure you have installed the root-level npm dependencies:
+    ```sh
+    npm install
+    ```
+2.  Run the tests from the root directory:
+    ```sh
+    npm run test:e2e
+    ```
+    Playwright is configured to automatically build and start the required Docker containers, run the tests against them, and shut them down.

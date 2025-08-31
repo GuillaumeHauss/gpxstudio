@@ -2251,6 +2251,7 @@ export default class Buttons {
                 // and manually populate it. A full implementation would require a
                 // robust deserialization method.
                 const newTrace = this.total.addTrace(undefined, traceData.name);
+                newTrace.gpx.addLayer(new L.FeatureGroup()); // Initialize main layer group
 
                 const tracks = traceData.Tracks.map(trackData => {
                     const segments = trackData.Segments.map(segmentData => {
@@ -2274,15 +2275,16 @@ export default class Buttons {
                     return track;
                 });
 
-                newTrace.gpx.getLayers()[0].addLayer(new L.FeatureGroup(tracks));
+                const mainLayerGroup = newTrace.gpx.getLayers()[0];
+                tracks.forEach(track => mainLayerGroup.addLayer(track));
 
                 const waypoints = traceData.Waypoints.map(waypointData => {
                     const latlng = new L.LatLng(waypointData.lat, waypointData.lng);
                     latlng.meta = { ele: waypointData.ele };
-                    return this.gpx._get_marker(latlng, waypointData.sym, waypointData.name, waypointData.desc, waypointData.cmt, this.gpx.options);
+                    return newTrace.gpx._get_marker(latlng, waypointData.sym, waypointData.name, waypointData.desc, waypointData.cmt, newTrace.gpx.options);
                 });
                 if (waypoints.length > 0) {
-                     newTrace.gpx.getLayers()[0].addLayer(new L.FeatureGroup(waypoints));
+                     mainLayerGroup.addLayer(new L.FeatureGroup(waypoints));
                 }
 
                 newTrace.recomputeStats();
