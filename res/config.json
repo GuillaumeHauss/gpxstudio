@@ -1,5 +1,7 @@
 {
-    "mapbox": "pk.eyJ1IjoidmNvcHBlIiwiYSI6ImNrYWliNHNrdzBvcGMyeG52NTFjMmI0aXEifQ.MF6KZDCvvWPCnODLpfHYUA",
-    "mapbox_dev": "pk.eyJ1IjoiZ3B4c3R1ZGlvIiwiYSI6ImNrdHVoM2pjNTBodmUycG1yZTNwcnJ3MzkifQ.YZnNs9s9oCQPzoXAWs_SLg",
+    "mapbox": "pk.eyJ1IjoiZ3VpbGxhdW1laGF1c3MiLCJhIjoiY21lemk3d3R1MHo0bTJscXlrNGw0dmNidiJ9.Z6-GDBClKRlWi1iay8DA6Q",
+    "mapbox_dev": "pk.eyJ1IjoiZ3VpbGxhdW1laGF1c3MiLCJhIjoiY21lemk3d3R1MHo0bTJscXlrNGw0dmNidiJ9.Z6-GDBClKRlWi1iay8DA6Q",
+    "sk_mapbox": "sk.eyJ1IjoiZ3VpbGxhdW1laGF1c3MiLCJhIjoiY21lemlkanc3MWRlbDJscXhocTN4MDZraSJ9.h69oCj0DGAnIz2ie4msLFg",
+    "sk_mapbox_dev": "sk.eyJ1IjoiZ3VpbGxhdW1laGF1c3MiLCJhIjoiY21lemlkanc3MWRlbDJscXhocTN4MDZraSJ9.h69oCj0DGAnIz2ie4msLFg",
     "routing_url": "https://routing.gpx.studio"
 }
