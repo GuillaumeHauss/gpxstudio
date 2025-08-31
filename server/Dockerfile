@@ -7,6 +7,9 @@ WORKDIR /usr/src/app
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
+# Install build dependencies for native modules (like sqlite3)
+RUN apk add --no-cache python3 make g++
+
 # Install any needed packages
 RUN npm install
 
