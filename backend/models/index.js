@@ -64,6 +64,17 @@ const Waypoint = sequelize.define('Waypoint', {
   sym: DataTypes.STRING,
 });
 
+const Folder = sequelize.define('Folder', {
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  is_default: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+});
+
 // Associations
 User.hasMany(Trace);
 Trace.belongsTo(User);
@@ -80,6 +91,12 @@ Segment.belongsTo(Track);
 Segment.hasMany(Point, { onDelete: 'CASCADE', hooks: true });
 Point.belongsTo(Segment);
 
+User.hasMany(Folder);
+Folder.belongsTo(User);
+
+Folder.hasMany(Trace);
+Trace.belongsTo(Folder);
+
 module.exports = {
   sequelize,
   User,
@@ -88,4 +105,5 @@ module.exports = {
   Segment,
   Point,
   Waypoint,
+  Folder,
 };

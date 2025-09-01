@@ -709,6 +709,16 @@
     <script type="module" src="/js/total.js"></script>
     <script type="module" src="/js/google.js"></script>
     <script type="module" src="/js/script.js"></script>
+    <script type="module" src="/js/explorer.js"></script>
     <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
     <script src="https://accounts.google.com/gsi/client"></script>
+    <div id="file-explorer" class="sidebar">
+      <a href="javascript:void(0)" class="closebtn" id="close-explorer-btn">&times;</a>
+      <div id="explorer-content">
+        <h3>File Explorer</h3>
+        <button id="add-folder-btn" class="custom-button"><i class="fas fa-folder-plus"></i> New Folder</button>
+        <div id="folder-list"></div>
+      </div>
+    </div>
+    <button class="openbtn" id="open-explorer-btn">&#9776;</button>
 </html>

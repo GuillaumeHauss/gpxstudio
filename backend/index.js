@@ -13,6 +13,8 @@ console.log('express limit okay');
 
 // API Routes
 app.use('/api/traces', tracesRouter);
+const foldersRouter = require('./routes/folders');
+app.use('/api/folders', foldersRouter);
 console.log('api traces okay');
 
 app.get('/', (req, res) => {
