@@ -1030,3 +1030,143 @@ ul {
 .requesting .spinner {
     -webkit-animation: rotating 2s linear infinite;
 }
+
+/* The sidebar menu */
+.sidebar {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  right: 0;
+  background-color: #fcfcfc;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+}
+
+/* The sidebar links */
+.sidebar a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidebar a:hover {
+  color: #f1f1f1;
+}
+
+/* Position and style the close button (top right corner) */
+.sidebar .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+/* The button used to open the sidebar */
+.openbtn {
+  font-size: 20px;
+  cursor: pointer;
+  background-color: #fcfcfc;
+  color: #535353;
+  padding: 10px 15px;
+  border: none;
+  position: fixed;
+  top: 50px;
+  right: 10px;
+  z-index: 1000;
+  border-radius: 4px;
+  box-shadow: 2px 2px 2px #BCBCBC;
+}
+
+.openbtn:hover {
+  background-color: #ddd;
+}
+
+#explorer-content {
+  padding: 16px;
+}
+
+#folder-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+#add-folder-btn {
+  margin-bottom: 10px;
+  width: 100%;
+  text-align: left;
+}
+
+.folder {
+  margin-bottom: 10px;
+}
+
+.folder-header {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  background-color: #eee;
+  cursor: pointer;
+}
+
+.folder-header:hover {
+  background-color: #ddd;
+}
+
+.folder-header .fa-folder {
+  margin-right: 10px;
+  color: #777;
+}
+
+.folder-header span {
+  flex-grow: 1;
+  font-weight: bold;
+}
+
+.folder-actions {
+  display: flex;
+}
+
+.folder-actions i,
+.trace-actions i {
+  margin-left: 10px;
+  cursor: pointer;
+  color: #777;
+}
+
+.folder-actions i:hover,
+.trace-actions i:hover {
+  color: #333;
+}
+
+.trace-list {
+  list-style-type: none;
+  padding-left: 20px;
+}
+
+.trace-item {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+}
+
+.trace-item:hover {
+  background-color: #f0f0f0;
+}
+
+.trace-item .fa-map-marker-alt {
+  margin-right: 10px;
+  color: #777;
+}
+
+.trace-item span {
+  flex-grow: 1;
+}
