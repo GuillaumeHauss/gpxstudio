@@ -4,15 +4,18 @@ const { sequelize, User, Trace, Track, Segment, Point, Waypoint } = require('../
 
 // Helper function to get or create a default user
 const getDefaultUser = async () => {
+  console.log('start get User');
   let user = await User.findOne({ where: { username: 'default' } });
   if (!user) {
     user = await User.create({ username: 'default' });
   }
+  console.log('end get User');
   return user;
 };
 
 // POST /api/traces - Create a new trace
 router.post('/', async (req, res) => {
+  console.log('start post on / route');
   const { name, tracks, waypoints } = req.body;
   if (!name || !tracks) {
     return res.status(400).json({ error: 'Missing required fields: name and tracks' });
@@ -51,15 +54,18 @@ router.post('/', async (req, res) => {
 
     await t.commit();
     res.status(201).json(trace);
+    
   } catch (error) {
     await t.rollback();
     console.error('Error creating trace:', error);
     res.status(500).json({ error: 'Failed to create trace' });
   }
+  console.log('end post on / route');
 });
 
 // GET /api/traces - Get all traces
 router.get('/', async (req, res) => {
+  console.log('start get on / route');
   try {
     const user = await getDefaultUser();
     const traces = await Trace.findAll({
@@ -67,13 +73,17 @@ router.get('/', async (req, res) => {
       order: [['createdAt', 'DESC']],
     });
     res.json(traces);
+    
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve traces' });
   }
+  console.log('end get on / route');
 });
 
 // GET /api/traces/:id - Get a single trace
 router.get('/:id', async (req, res) => {
+  console.log('start get on /:id route');
+
   try {
     const trace = await Trace.findByPk(req.params.id, {
       include: [
@@ -103,10 +113,13 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve trace' });
   }
+  console.log('end get on /:id route');
+
 });
 
 // DELETE /api/traces/:id - Delete a trace
 router.delete('/:id', async (req, res) => {
+  console.log('start delete on /:id route');
     try {
         const trace = await Trace.findByPk(req.params.id);
         if (trace) {
@@ -118,10 +131,12 @@ router.delete('/:id', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete trace' });
     }
+    console.log('end delete on /:id route');
 });
 
 // PUT /api/traces/:id - Update a trace
 router.put('/:id', async (req, res) => {
+  console.log('start put on /:id route');
     const { name, tracks, waypoints } = req.body;
     if (!name || !tracks) {
         return res.status(400).json({ error: 'Missing required fields: name and tracks' });
@@ -167,6 +182,8 @@ router.put('/:id', async (req, res) => {
         console.error('Error updating trace:', error);
         res.status(500).json({ error: 'Failed to update trace' });
     }
+    console.log('end put on /:id route');
+
 });
 
 module.exports = router;

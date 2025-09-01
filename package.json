@@ -5,10 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Use test:server or test:e2e\"",
-    "test:e2e": "playwright test"
+    "test:e2e": "npx playwright test e2e/database.spec.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {}
+  "devDependencies": {
+    "@playwright/test":"1.50.0"
+  }
 }

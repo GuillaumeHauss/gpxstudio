@@ -1,4 +1,5 @@
 services:
+
   backend:
     build: 
       context: ./server
@@ -23,6 +24,24 @@ services:
     networks:
       - gpx-network
     restart: unless-stopped
+
+  e2e-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test.frontend
+      target: tester
+    depends_on:
+      - frontend
+      - backend
+    #command: ["npm", "run", "test:e2e"]
+    ports:
+      - "9323:9323"
+    # Mount the test results directory to the host
+    volumes:
+      - ./playwright-report:/app/playwright-report
+      - ./test-results:/app/test-results
+    networks:
+      - gpx-network
 
 volumes:
   db-data:

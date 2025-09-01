@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 test.describe('Database Feature', () => {
   test('should allow a user to create, save, and delete a trace', async ({ page }) => {
     // 1. Navigate to the app
-    await page.goto('/');
+    await page.goto('http://localhost:80');
 
     // 2. Wait for the map to be ready (wait for a known element)
     await expect(page.locator('#mapid')).toBeVisible();

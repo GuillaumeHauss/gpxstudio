@@ -10,7 +10,7 @@ module.exports = defineConfig({
   reporter: 'html',
   use: {
     // The baseURL needs to point to the service hostname inside the Docker network.
-    baseURL: 'http://frontend:80',
+    baseURL: 'http://localhost:80',
     trace: 'on-first-retry',
   },
   projects: [

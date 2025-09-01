@@ -6,6 +6,7 @@ WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
+COPY jest.config.js ./
 
 # Install build dependencies for native modules (like sqlite3)
 RUN apk add --no-cache python3 make g++
@@ -13,11 +14,16 @@ RUN apk add --no-cache python3 make g++
 # Install any needed packages
 RUN npm install
 
+# Install specifically jest
+RUN npm install -g jest
+
 # Bundle app source
-COPY . .
+COPY ./ ./
 
 # Make port 3000 available to the world outside this container
 EXPOSE 3000
 
 # Define the command to run the app
-CMD [ "node", "index.js" ]
+#CMD [ "node", "index.js" ]
+
+ENTRYPOINT ["tail", "-f", "/dev/null"]

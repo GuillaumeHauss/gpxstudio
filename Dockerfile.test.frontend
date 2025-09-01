@@ -1,0 +1,19 @@
+# Stage 1: Tester Environment
+# This stage installs all dependencies and can be used to run E2E tests.
+FROM mcr.microsoft.com/playwright:v1.50.0-noble AS tester
+
+WORKDIR /app
+
+# Copy dependency definitions
+COPY package.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the entire application code
+COPY . .
+
+# Run the tests
+#RUN npm run test:e2e
+
+ENTRYPOINT ["tail", "-f", "/dev/null"]

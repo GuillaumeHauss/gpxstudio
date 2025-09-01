@@ -1,20 +1,4 @@
-# Stage 1: Tester Environment
-# This stage installs all dependencies and can be used to run E2E tests.
-FROM mcr.microsoft.com/playwright/node:v1.44.0-jammy AS tester
-
-WORKDIR /app
-
-# Copy dependency definitions
-COPY package.json package-lock.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy the entire application code
-COPY . .
-
-
-# Stage 2: Production Environment
+# Production Environment
 # This stage builds a lean Nginx image with only the static frontend files.
 FROM nginx:1.25-alpine AS production
 
@@ -32,4 +16,5 @@ COPY --chown=nginx:nginx nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 
+#ENTRYPOINT ["tail", "-f", "/dev/null"]
 CMD ["nginx", "-g", "daemon off;"]
