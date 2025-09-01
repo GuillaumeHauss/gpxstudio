@@ -15,8 +15,14 @@ RUN apt-get install python3 make g++ -y
 # Install any needed packages
 RUN npm install
 
+# Install specifically jest
+RUN npm install -g jest
+
 # Bundle app source
 COPY ./ ./
+
+# Run the tests
+RUN npm run test
 
 # Make port 3000 available to the world outside this container
 EXPOSE 3000

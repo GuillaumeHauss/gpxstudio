@@ -2,7 +2,7 @@ services:
   backend:
     build: 
       context: ../backend
-      dockerfile: ../deployment/backend.Dockerfile.weird
+      dockerfile: ../deployment/backend.Dockerfile
     ports:
       - "3000:3000"
     volumes:
