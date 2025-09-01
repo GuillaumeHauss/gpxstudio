@@ -2,8 +2,8 @@ services:
 
   backend:
     build: 
-      context: ./server
-      dockerfile: Dockerfile.weird
+      context: ../backend
+      dockerfile: ../deployment/backend.Dockerfile.weird
     ports:
       - "3000:3000"
     volumes:
@@ -14,21 +14,23 @@ services:
 
   frontend:
     build:
-      context: .
-      dockerfile: Dockerfile.frontend
+      context: ../frontend
+      dockerfile: ../deployment/frontend.Dockerfile
       target: production
     ports:
       - "8080:80"
     depends_on:
       - backend
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
       - gpx-network
     restart: unless-stopped
 
   e2e-tests:
     build:
-      context: .
-      dockerfile: Dockerfile.test.frontend
+      context: ../frontend
+      dockerfile: ../deployment/frontend.Dockerfile.test
       target: tester
     depends_on:
       - frontend
@@ -38,8 +40,8 @@ services:
       - "9323:9323"
     # Mount the test results directory to the host
     volumes:
-      - ./playwright-report:/app/playwright-report
-      - ./test-results:/app/test-results
+      - ../frontend/playwright-report:/app/playwright-report
+      - ../frontend/test-results:/app/test-results
     networks:
       - gpx-network
 

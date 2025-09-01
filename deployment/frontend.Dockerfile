@@ -12,7 +12,6 @@ COPY --chown=nginx:nginx include /usr/share/nginx/html/include/
 COPY --chown=nginx:nginx l /usr/share/nginx/html/l/
 COPY --chown=nginx:nginx robots.txt /usr/share/nginx/html/
 COPY --chown=nginx:nginx sitemap.xml /usr/share/nginx/html/
-COPY --chown=nginx:nginx nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 
