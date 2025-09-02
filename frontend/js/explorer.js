@@ -1,5 +1,7 @@
 // This file will contain the logic for the file explorer.
 
+const backendUrl = 'http://localhost:3000';
+
 function openNav() {
   document.getElementById("file-explorer").style.width = "350px";
   loadExplorerData();
@@ -11,7 +13,7 @@ function closeNav() {
 
 async function loadExplorerData() {
   try {
-    const response = await fetch('/api/folders');
+    const response = await fetch(`${backendUrl}/api/folders`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -81,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const folderName = prompt("Enter the name for the new folder:");
             if (folderName) {
                 try {
-                    const response = await fetch('/api/folders', {
+                    const response = await fetch(`${backendUrl}/api/folders`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -109,14 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const folderEl = target.closest('.folder');
             const traceEl = target.closest('.trace-item');
 
-            if (folderEl && !traceEl) { // Action on folder, not on trace
+            if (folderEl && !traceEl) {
                 const folderId = folderEl.dataset.folderId;
 
                 if (target.classList.contains('fa-edit')) {
                     const newName = prompt('Enter the new name for the folder:', folderEl.querySelector('.folder-header span').textContent);
                     if (newName) {
                         try {
-                            const response = await fetch(`/api/folders/${folderId}`, {
+                            const response = await fetch(`${backendUrl}/api/folders/${folderId}`, {
                                 method: 'PUT',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ name: newName }),
@@ -135,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (target.classList.contains('fa-trash') && target.closest('.folder-actions')) {
                     if (confirm('Are you sure you want to delete this folder? Traces inside will be moved to the default folder.')) {
                         try {
-                            const response = await fetch(`/api/folders/${folderId}`, {
+                            const response = await fetch(`${backendUrl}/api/folders/${folderId}`, {
                                 method: 'DELETE',
                             });
                             if (response.ok) {
@@ -148,6 +150,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             console.error('Error deleting folder:', error);
                             alert('An error occurred while deleting the folder.');
                         }
+                    }
+                } else if (target.classList.contains('fa-plus')) {
+                    if (window.saveTrace) {
+                        window.saveTrace(folderId);
+                    } else {
+                        console.error('saveTrace function not found on window object.');
                     }
                 }
             }
@@ -165,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (target.classList.contains('fa-trash') && target.closest('.trace-actions')) {
                     if (confirm('Are you sure you want to delete this trace?')) {
                         try {
-                            const response = await fetch(`/api/traces/${traceId}`, {
+                            const response = await fetch(`${backendUrl}/api/traces/${traceId}`, {
                                 method: 'DELETE',
                             });
                             if (response.ok) {
