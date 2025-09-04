@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as a parent image
-FROM node:18-slim
+FROM node:18-alpine
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -9,11 +9,13 @@ COPY package*.json ./
 COPY jest.config.js ./
 
 # Install build dependencies for native modules (like sqlite3)
-RUN apt-get update
-RUN apt-get install python3 make g++ -y
+RUN apk add --no-cache python3 make g++
 
 # Install any needed packages
 RUN npm install
+
+# Install specifically jest
+RUN npm install -g jest
 
 # Bundle app source
 COPY ./ ./
@@ -22,6 +24,6 @@ COPY ./ ./
 EXPOSE 3000
 
 # Define the command to run the app
-CMD [ "node", "index.js" ]
+#CMD [ "node", "index.js" ]
 
-#ENTRYPOINT ["tail", "-f", "/dev/null"]
+ENTRYPOINT ["tail", "-f", "/dev/null"]
