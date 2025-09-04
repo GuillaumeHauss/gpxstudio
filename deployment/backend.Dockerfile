@@ -20,7 +20,5 @@ COPY ./ ./
 # Make port 3000 available to the world outside this container
 EXPOSE 3000
 
-RUN ls -all /usr/src/app/routes
-
 # Define the command to run the app
 CMD [ "node", "index.js" ]

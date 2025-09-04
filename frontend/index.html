@@ -28,6 +28,9 @@
         <meta property="og:url" content="https://gpx.studio/" />
         <meta property="og:image" content="https://gpx.studio/res/og_logo.png" />
         <meta name="twitter:card" content="summary_large_image">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
         <script type="application/ld+json">
         {
             "@context" : "http://schema.org",
@@ -81,7 +84,6 @@
             <div id="load" class="panels custom-button">Load GPX</div>
             <div id="manual" class="panels custom-button">New GPX</div>
             <div id="export" class="panels custom-button">Export</div>
-            <div id="db" class="panels custom-button">Database</div>
             <div style="display: inline-block">
                 <div class="panels custom-button unselected no-click2" id="undo"><i class="fas fa-reply"></i></div>
                 <div class="panels custom-button unselected no-click2" id="redo"><i class="fas fa-share"></i></div>
@@ -678,6 +680,7 @@
         </div>
         </div>
     </body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="/include/overpasslayer/OverPassLayer.bundle.js"></script>
     <script type="text/javascript" src="/include/icon/Leaflet.Icon.Glyph.js"></script>
@@ -712,12 +715,14 @@
     <script type="module" src="/js/google.js"></script>
     <script type="module" src="/js/script.js"></script>
     <script src="/js/alerts.js"></script>
+    <script src="/js/notifications.js"></script>
     <script type="module" src="/js/explorer.js"></script>
     <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
     <script src="https://accounts.google.com/gsi/client"></script>
     <div id="file-explorer" class="sidebar">
       <a href="javascript:void(0)" class="closebtn" id="close-explorer-btn">&times;</a>
       <div id="explorer-content">
+        <div id="notification-area"></div>
         <h3>File Explorer</h3>
         <button id="add-folder-btn" class="custom-button"><i class="fas fa-folder-plus"></i> New Folder</button>
         <div id="folder-list"></div>

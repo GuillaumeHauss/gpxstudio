@@ -8,11 +8,14 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors());
+console.log('CORS okay');
 app.use(express.json({ limit: '50mb' })); // Increase payload size limit
+console.log('express limit okay');
 
 // API Routes
 app.use('/api/traces', tracesRouter);
 app.use('/api/folders', foldersRouter);
+console.log('api folders okay');
 
 app.get('/', (req, res) => {
   res.send('Hello from the gpx.studio backend!');
