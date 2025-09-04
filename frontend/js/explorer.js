@@ -27,8 +27,8 @@ async function loadExplorerData() {
       folderEl.dataset.folderId = folder.id;
       folderEl.innerHTML = `
         <div class="folder-header">
-          <i class="fas fa-folder"></i>
-          <span>${folder.name}</span>
+          <i class="fas fa-folder folder-toggle"></i>
+          <span class="folder-toggle">${folder.name}</span>
           <div class="folder-actions">
             <i class="fas fa-plus" title="Add New Trace"></i>
             ${!folder.is_default ? `<i class="fas fa-edit" title="Rename Folder"></i>` : ''}
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addFolderBtn = document.getElementById("add-folder-btn");
     if (addFolderBtn) {
         addFolderBtn.addEventListener("click", async () => {
-            const folderName = prompt("Enter the name for the new folder:");
+            const folderName = await customPrompt("Enter the name for the new folder:");
             if (folderName) {
                 try {
                     const response = await fetch(`${backendUrl}/api/folders`, {
@@ -94,11 +94,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         loadExplorerData();
                     } else {
                         const errorData = await response.json();
-                        alert(`Error creating folder: ${errorData.error}`);
+                        customAlert(`Error creating folder: ${errorData.error}`);
                     }
                 } catch (error) {
                     console.error('Error creating folder:', error);
-                    alert('An error occurred while creating the folder.');
+                    customAlert('An error occurred while creating the folder.');
                 }
             }
         });
@@ -114,8 +114,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (folderEl && !traceEl) {
                 const folderId = folderEl.dataset.folderId;
 
+                if (target.classList.contains('folder-toggle')) {
+                    folderEl.classList.toggle('open');
+                }
+
                 if (target.classList.contains('fa-edit')) {
-                    const newName = prompt('Enter the new name for the folder:', folderEl.querySelector('.folder-header span').textContent);
+                    const newName = await customPrompt('Enter the new name for the folder:', folderEl.querySelector('.folder-header span').textContent);
                     if (newName) {
                         try {
                             const response = await fetch(`${backendUrl}/api/folders/${folderId}`, {
@@ -127,15 +131,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                 loadExplorerData();
                             } else {
                                 const errorData = await response.json();
-                                alert(`Error renaming folder: ${errorData.error}`);
+                                customAlert(`Error renaming folder: ${errorData.error}`);
                             }
                         } catch (error) {
                             console.error('Error renaming folder:', error);
-                            alert('An error occurred while renaming the folder.');
+                            customAlert('An error occurred while renaming the folder.');
                         }
                     }
                 } else if (target.classList.contains('fa-trash') && target.closest('.folder-actions')) {
-                    if (confirm('Are you sure you want to delete this folder? Traces inside will be moved to the default folder.')) {
+                    if (await customConfirm('Are you sure you want to delete this folder? Traces inside will be moved to the default folder.')) {
                         try {
                             const response = await fetch(`${backendUrl}/api/folders/${folderId}`, {
                                 method: 'DELETE',
@@ -144,11 +148,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 loadExplorerData();
                             } else {
                                 const errorData = await response.json();
-                                alert(`Error deleting folder: ${errorData.error}`);
+                                customAlert(`Error deleting folder: ${errorData.error}`);
                             }
                         } catch (error) {
                             console.error('Error deleting folder:', error);
-                            alert('An error occurred while deleting the folder.');
+                            customAlert('An error occurred while deleting the folder.');
                         }
                     }
                 } else if (target.classList.contains('fa-plus')) {
@@ -171,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.error('viewTrace function not found on window object.');
                     }
                 } else if (target.classList.contains('fa-trash') && target.closest('.trace-actions')) {
-                    if (confirm('Are you sure you want to delete this trace?')) {
+                    if (await customConfirm('Are you sure you want to delete this trace?')) {
                         try {
                             const response = await fetch(`${backendUrl}/api/traces/${traceId}`, {
                                 method: 'DELETE',
@@ -180,11 +184,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 loadExplorerData();
                             } else {
                                 const errorData = await response.json();
-                                alert(`Error deleting trace: ${errorData.error}`);
+                                customAlert(`Error deleting trace: ${errorData.error}`);
                             }
                         } catch (error) {
                             console.error('Error deleting trace:', error);
-                            alert('An error occurred while deleting the trace.');
+                            customAlert('An error occurred while deleting the trace.');
                         }
                     }
                 }

@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { sequelize } = require('./models');
 const tracesRouter = require('./routes/traces');
+const foldersRouter = require('./routes/folders');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -13,9 +14,8 @@ console.log('express limit okay');
 
 // API Routes
 app.use('/api/traces', tracesRouter);
-const foldersRouter = require('./routes/folders');
 app.use('/api/folders', foldersRouter);
-console.log('api traces okay');
+console.log('api folders okay');
 
 app.get('/', (req, res) => {
   res.send('Hello from the gpx.studio backend!');
