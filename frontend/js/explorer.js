@@ -1,6 +1,8 @@
 // This file will contain the logic for the file explorer.
 
-const backendUrl = '';
+var config = require('../res/config.json')
+
+const backendUrl = config["backend_url"];
 
 function openNav() {
   document.getElementById("file-explorer").style.width = "350px";
