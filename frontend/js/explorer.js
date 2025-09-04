@@ -1,6 +1,6 @@
 // This file will contain the logic for the file explorer.
 
-const backendUrl = 'http://localhost:3000';
+const backendUrl = '';
 
 function openNav() {
   document.getElementById("file-explorer").style.width = "350px";
