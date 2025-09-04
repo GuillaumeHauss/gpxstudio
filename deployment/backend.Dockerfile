@@ -14,9 +14,6 @@ RUN apk add --no-cache python3 make g++
 # Install any needed packages
 RUN npm install
 
-# Install specifically jest
-RUN npm install -g jest
-
 # Bundle app source
 COPY ./ ./
 
@@ -24,6 +21,4 @@ COPY ./ ./
 EXPOSE 3000
 
 # Define the command to run the app
-#CMD [ "node", "index.js" ]
-
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+CMD [ "node", "index.js" ]
