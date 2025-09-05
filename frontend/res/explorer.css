@@ -88,6 +88,17 @@
   background-color: #333;
 }
 
+.folder.active > .folder-header {
+    background-color: #3c3c3c;
+    border-left: 3px solid #007acc;
+}
+
+.active-folder-icon {
+    margin-left: auto;
+    margin-right: 15px;
+    color: #007acc;
+}
+
 .folder-header .fa-folder {
   margin-right: 10px;
   color: #007acc;

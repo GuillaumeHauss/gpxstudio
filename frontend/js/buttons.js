@@ -123,7 +123,6 @@ export default class Buttons {
         this.crop_keep = document.getElementById("crop-keep");
         this.layer_selection_ok = document.getElementById("layer-selection-ok");
         this.export = document.getElementById("export");
-        this.db = document.getElementById("db");
         this.export2 = document.getElementById("export-2");
         this.save_drive = document.getElementById("save-drive");
         this.chevrons = document.getElementById("chevrons");
@@ -267,10 +266,6 @@ export default class Buttons {
         // WINDOWS
         this.help_window = L.control.window(this.map, { title: '', content: this.help_text, className: 'panels-container' });
         this.new_website_window = L.control.window(this.map, { title: '', content: this.new_website_text, className: 'panels-container' });
-        this.db_content = document.getElementById('db-content');
-        this.save_db_button = document.getElementById('save-db');
-        this.db_trace_list = document.getElementById('db-trace-list');
-        this.db_window = L.control.window(this.map, { title: 'Database', content: this.db_content, className: 'panels-container' });
         this.export_window = L.control.window(this.map, { title: '', content: this.export_content, className: 'panels-container' });
         this.clear_window = L.control.window(this.map, { title: '', content: this.clear_content, className: 'panels-container', closeButton: false });
         this.delete_window = L.control.window(this.map, { title: '', content: this.delete_content, className: 'panels-container', closeButton: false });
@@ -286,9 +281,11 @@ export default class Buttons {
         this.structure_window = L.control.window(this.map, { title: '', content: this.structure_content, className: 'panels-container' });
         this.crop_window = L.control.window(this.map, { title: '', content: this.crop_content, className: 'panels-container', closeButton: false });
         this.layer_selection_window = L.control.window(this.map, { title: '', content: this.layer_selection_content, className: 'panels-container' });
+        this.save_trace_name_content = document.getElementById('save-trace-name-content');
+        this.save_trace_name_window = L.control.window(this.map, { title: 'Save Trace', content: this.save_trace_name_content, className: 'panels-container', closeButton: false });
 
         this.zoom = L.control.zoom({
-            position: 'topright'
+            position: 'topleft'
         }).addTo(this.map);
 
         var _this = this;
@@ -477,7 +474,8 @@ export default class Buttons {
                 } else {
                     _this.geocoderControl = L.Control.geocoder({
                         defaultMarkGeocode: false,
-                        placeholder: _this.search_input_text
+                        placeholder: _this.search_input_text,
+                        position: 'topleft'
                     }).on('markgeocode', function (e) {
                         var bbox = e.geocode.bbox;
                         _this.map.fitBounds(bbox);
@@ -485,7 +483,7 @@ export default class Buttons {
                     _this.geocoderControl.getContainer().children[0].title = _this.search_button_text;
 
                     L.control.locate({
-                        position: 'topright',
+                        position: 'topleft',
                         icon: 'fas fa-crosshairs',
                         iconLoading: 'fas fa-spinner spinner',
                         setView: 'always',
@@ -495,7 +493,7 @@ export default class Buttons {
                     }).addTo(_this.map);
 
                     _this.streetView = L.control({
-                        position: 'topright'
+                        position: 'topleft'
                     });
                     _this.streetView.onAdd = function (map) {
                         var div = L.DomUtil.create('div', 'leaflet-control-street-view leaflet-control-layers leaflet-bar');
@@ -713,7 +711,7 @@ export default class Buttons {
                         }
                     }
 
-                    _this.controlLayers = L.control.layers(baselayersHierarchy, overlaysHierarchy, { editable: true }).addTo(_this.map);
+                    _this.controlLayers = L.control.layers(baselayersHierarchy, overlaysHierarchy, { editable: true, position: 'topleft' }).addTo(_this.map);
 
                     if (localStorage.hasOwnProperty('lastbasemap')) {
                         const basemap_key = localStorage.getItem('lastbasemap');
@@ -1439,10 +1437,15 @@ export default class Buttons {
         };
         document.addEventListener("keydown", function (e) {
             if (e.key === "Escape") {
-                if (buttons.window_open) buttons.window_open.hide();
+                if (buttons.window_open) {
+                    buttons.window_open.hide();
+                    return;
+                }
                 if (total.hasFocus) return;
                 var trace = total.traces[total.focusOn];
-                if (trace.isEdited) buttons.edit.click();
+                if (trace.isEdited) {
+                    buttons.showSavePopup(trace);
+                }
                 e.preventDefault();
             } else if (e.key === "F1") {
                 if (localStorage.hasOwnProperty('beforelastbasemap')) {
@@ -2160,90 +2163,12 @@ export default class Buttons {
             }
         });
         this.google = new Google(this);
-
-        this.db.addEventListener("click", function () {
-            if (buttons.window_open) buttons.window_open.hide();
-            buttons.window_open = buttons.db_window;
-            buttons.db_window.show();
-            buttons.populateTraceList();
-        });
-
-        this.save_db_button.addEventListener("click", async function () {
-            if (total.hasFocus || total.traces.length === 0) {
-                alert("Please focus on a single trace to save.");
-                return;
-            }
-            const trace = total.traces[total.focusOn];
-            const traceJSON = buttons.serializeTrace(trace);
-
-            try {
-                const response = await fetch('http://localhost:3000/api/traces', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(traceJSON),
-                });
-                if (response.ok) {
-                    alert('Trace saved successfully!');
-                    buttons.populateTraceList();
-                } else {
-                    alert('Error saving trace: ' + await response.text());
-                }
-            } catch (e) {
-                console.error("Error saving trace:", e);
-                alert('Error saving trace. Make sure the backend server is running.');
-            }
-        });
-    }
-
-    async populateTraceList() {
-        try {
-            const response = await fetch('http://localhost:3000/api/traces');
-            if (response.ok) {
-                const traces = await response.json();
-                this.db_trace_list.innerHTML = ''; // Clear existing list
-                traces.forEach(trace => {
-                    const li = document.createElement('li');
-                    li.style.display = 'flex';
-                    li.style.justifyContent = 'space-between';
-                    li.style.padding = '5px';
-
-                    const nameSpan = document.createElement('span');
-                    nameSpan.textContent = trace.name;
-                    li.appendChild(nameSpan);
-
-                    const buttonsDiv = document.createElement('div');
-
-                    const loadButton = document.createElement('button');
-                    loadButton.textContent = 'Load';
-                    loadButton.classList.add('custom-button', 'normal-button');
-                    loadButton.style.marginLeft = '10px';
-                    loadButton.onclick = () => this.loadTrace(trace.id);
-                    buttonsDiv.appendChild(loadButton);
-
-                    const deleteButton = document.createElement('button');
-                    deleteButton.textContent = 'Delete';
-                    deleteButton.classList.add('custom-button', 'normal-button');
-                    deleteButton.style.marginLeft = '5px';
-                    deleteButton.onclick = () => this.deleteTrace(trace.id);
-                    buttonsDiv.appendChild(deleteButton);
-
-                    li.appendChild(buttonsDiv);
-                    this.db_trace_list.appendChild(li);
-                });
-            } else {
-                this.db_trace_list.innerHTML = '<li>Error loading traces.</li>';
-            }
-        } catch (e) {
-            console.error("Error fetching traces:", e);
-            this.db_trace_list.innerHTML = '<li>Could not connect to the server.</li>';
-        }
+        window.viewTrace = this.loadTrace.bind(this);
     }
 
     async loadTrace(id) {
         try {
-            const response = await fetch(`http://localhost:3000/api/traces/${id}`);
+            const response = await fetch(`/api/traces/${id}`);
             if (response.ok) {
                 const traceData = await response.json();
 
@@ -2251,6 +2176,7 @@ export default class Buttons {
                 // and manually populate it. A full implementation would require a
                 // robust deserialization method.
                 const newTrace = this.total.addTrace(undefined, traceData.name);
+                newTrace.id = traceData.id;
                 newTrace.gpx.addLayer(new L.FeatureGroup()); // Initialize main layer group
 
                 const tracks = traceData.Tracks.map(trackData => {
@@ -2290,76 +2216,56 @@ export default class Buttons {
                 newTrace.recomputeStats();
                 newTrace.update();
                 newTrace.focus();
-                this.db_window.hide();
-                alert('Trace loaded successfully!');
+                showNotification('Trace loaded successfully!', 'success');
 
             } else {
-                alert('Error loading trace.');
+                showNotification('Error loading trace.', 'error');
             }
         } catch (e) {
             console.error("Error loading trace:", e);
-            alert('Error loading trace. Could not connect to server.');
+            showNotification('Error loading trace. Could not connect to server.', 'error');
         }
     }
 
-    async deleteTrace(id) {
-        if (!confirm('Are you sure you want to delete this trace?')) {
-            return;
-        }
-        try {
-            const response = await fetch(`http://localhost:3000/api/traces/${id}`, {
-                method: 'DELETE',
-            });
-            if (response.ok) {
-                alert('Trace deleted successfully!');
-                this.populateTraceList();
-            } else {
-                alert('Error deleting trace.');
+    showSavePopup(trace) {
+        if (this.window_open) this.window_open.hide();
+        this.window_open = this.save_trace_name_window;
+        this.save_trace_name_window.show();
+
+        const nameInput = document.getElementById('trace-name-input');
+        nameInput.value = trace.name;
+
+        const okButton = document.getElementById('save-trace-name-ok');
+        const cancelButton = document.getElementById('save-trace-name-cancel');
+
+        const okClickListener = () => {
+            const newName = nameInput.value;
+            if (newName) {
+                trace.rename(newName);
+                window.saveTrace(trace);
+                this.edit.click();
             }
-        } catch (e) {
-            console.error("Error deleting trace:", e);
-            alert('Error deleting trace. Could not connect to server.');
-        }
-    }
-
-    serializeTrace(trace) {
-        const tracks = trace.getTracks().map(track => {
-            const segments = trace.getSegments(track).map(segment => {
-                const points = segment._latlngs.map(pt => {
-                    return {
-                        lat: pt.lat,
-                        lng: pt.lng,
-                        ele: pt.meta.ele,
-                        time: pt.meta.time,
-                        hr: pt.meta.hr,
-                        cad: pt.meta.cad,
-                        atemp: pt.meta.atemp,
-                        power: pt.meta.power,
-                        surface: pt.meta.surface,
-                    };
-                });
-                return { points };
-            });
-            return { name: track.name, segments };
-        });
-
-        const waypoints = trace.getWaypoints().map(wpt => {
-            return {
-                lat: wpt._latlng.lat,
-                lng: wpt._latlng.lng,
-                ele: wpt._latlng.meta.ele,
-                name: wpt.name,
-                cmt: wpt.cmt,
-                desc: wpt.desc,
-                sym: wpt.sym,
-            };
-        });
-
-        return {
-            name: trace.name,
-            tracks,
-            waypoints,
+            this.save_trace_name_window.hide();
+            cleanup();
         };
+
+        const cancelClickListener = () => {
+            // Revert changes by going back to the last saved state.
+            if (trace.at > 0) {
+                trace.undo();
+            }
+            this.edit.click();
+            this.save_trace_name_window.hide();
+            cleanup();
+        };
+
+        const cleanup = () => {
+            okButton.removeEventListener('click', okClickListener);
+            cancelButton.removeEventListener('click', cancelClickListener);
+        };
+
+        okButton.addEventListener('click', okClickListener);
+        cancelButton.addEventListener('click', cancelClickListener);
     }
 
     focusTabElement(tab) {

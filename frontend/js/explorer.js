@@ -1,6 +1,12 @@
 // This file will contain the logic for the file explorer.
 
 const backendUrl = '';
+let activeFolderId = null;
+
+function setActiveFolder(folderId) {
+    activeFolderId = folderId;
+    loadExplorerData();
+}
 
 function openNav() {
   document.getElementById("file-explorer").style.width = "350px";
@@ -22,13 +28,20 @@ async function loadExplorerData() {
     folderList.innerHTML = ''; // Clear existing list
 
     folders.forEach(folder => {
+      if (folder.is_default && activeFolderId === null) {
+        activeFolderId = folder.id;
+      }
       const folderEl = document.createElement('div');
       folderEl.classList.add('folder');
+      if (folder.id === activeFolderId) {
+        folderEl.classList.add('active');
+      }
       folderEl.dataset.folderId = folder.id;
       folderEl.innerHTML = `
         <div class="folder-header">
           <i class="fas fa-folder folder-toggle"></i>
           <span class="folder-toggle">${folder.name}</span>
+          ${folder.id === activeFolderId ? '<i class="fas fa-star active-folder-icon" title="Active Folder"></i>' : ''}
           <div class="folder-actions">
             <i class="fas fa-plus" title="Add New Trace"></i>
             <i class="fas fa-file-archive download-folder" title="Download All Traces"></i>
@@ -120,6 +133,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (target.classList.contains('folder-toggle')) {
                     folderEl.classList.toggle('open');
+                } else {
+                    setActiveFolder(folderId);
                 }
 
                 if (target.classList.contains('download-folder')) {
@@ -165,7 +180,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } else if (target.classList.contains('fa-plus')) {
                     if (window.saveTrace) {
-                        window.saveTrace(folderId);
+                        if (window.total && window.total.focusOn !== null && window.total.traces[window.total.focusOn]) {
+                            const trace = window.total.traces[window.total.focusOn];
+                            window.saveTrace(trace, folderId);
+                        } else {
+                            showNotification('There is no active trace to save.', 'error');
+                        }
                     } else {
                         console.error('saveTrace function not found on window object.');
                     }
@@ -323,47 +343,13 @@ async function downloadFolderAsZip(folderId, folderName) {
     }
 }
 
-function serializeTrace(trace) {
-    const tracks = trace.getTracks().map(track => {
-        const segments = trace.getSegments(track).map(segment => {
-            const points = segment._latlngs.map(pt => {
-                return {
-                    lat: pt.lat,
-                    lng: pt.lng,
-                    ele: pt.meta.ele,
-                    time: pt.meta.time,
-                    hr: pt.meta.hr,
-                    cad: pt.meta.cad,
-                    atemp: pt.meta.atemp,
-                    power: pt.meta.power,
-                    surface: pt.meta.surface,
-                };
-            });
-            return { points };
-        });
-        return { name: track.name, segments };
-    });
-
-    const waypoints = trace.getWaypoints().map(wpt => {
-        return {
-            lat: wpt._latlng.lat,
-            lng: wpt._latlng.lng,
-            ele: wpt._latlng.meta.ele,
-            name: wpt.name,
-            cmt: wpt.cmt,
-            desc: wpt.desc,
-            sym: wpt.sym,
-        };
-    });
-
-    return {
-        name: trace.name,
-        tracks,
-        waypoints,
-    };
-}
-
+let isSaving = false;
 window.saveTrace = async function(trace, folderId) {
+    if (isSaving) {
+        showNotification('A save operation is already in progress.', 'info');
+        return;
+    }
+    isSaving = true;
     showNotification(`Saving trace "${trace.name}"...`, 'info');
 
     try {
@@ -377,11 +363,14 @@ window.saveTrace = async function(trace, folderId) {
             targetFolderId = defaultFolder.id;
         }
 
-        const traceJSON = serializeTrace(trace);
+        const traceJSON = window.buttons.serializeTrace(trace);
         traceJSON.folderId = targetFolderId;
 
-        const response = await fetch(`${backendUrl}/api/traces`, {
-            method: 'POST',
+        const method = trace.id ? 'PUT' : 'POST';
+        const url = trace.id ? `${backendUrl}/api/traces/${trace.id}` : `${backendUrl}/api/traces`;
+
+        const response = await fetch(url, {
+            method: method,
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -390,13 +379,19 @@ window.saveTrace = async function(trace, folderId) {
 
         if (response.ok) {
             showNotification('Trace saved successfully!', 'success');
+            if (method === 'POST') {
+                const newTraceData = await response.json();
+                trace.id = newTraceData.id; // Store the new ID
+            }
             loadExplorerData();
         } else {
-            const errorText = await response.text();
-            showNotification(`Error saving trace: ${errorText}`, 'error');
+            const errorData = await response.json();
+            showNotification(`Error saving trace: ${errorData.error}`, 'error');
         }
     } catch (e) {
         console.error("Error saving trace:", e);
         showNotification('An error occurred while saving the trace.', 'error');
+    } finally {
+        isSaving = false;
     }
 };

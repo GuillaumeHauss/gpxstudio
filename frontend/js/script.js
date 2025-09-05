@@ -1,3 +1,3 @@
 import Buttons from './buttons.js';
 
-const buttons = new Buttons();
+window.buttons = new Buttons();

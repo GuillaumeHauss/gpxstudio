@@ -38,6 +38,12 @@ router.post('/', async (req, res) => {
       targetFolderId = defaultFolder.id;
     }
 
+    const existingTrace = await Trace.findOne({ where: { name, FolderId: targetFolderId } });
+    if (existingTrace) {
+      await t.rollback();
+      return res.status(409).json({ error: `A trace with the name "${name}" already exists in this folder.` });
+    }
+
     const trace = await Trace.create({ name, UserId: user.id, FolderId: targetFolderId }, { transaction: t });
 
     for (const trackData of tracks) {
@@ -147,6 +153,21 @@ router.put('/:id', async (req, res) => {
     // Delete old data
     await Track.destroy({ where: { TraceId: trace.id }, transaction: t });
     await Waypoint.destroy({ where: { TraceId: trace.id }, transaction: t });
+
+    // Check for name collision before updating
+    if (name !== trace.name || (folderId && folderId !== trace.FolderId)) {
+      const existingTrace = await Trace.findOne({
+        where: {
+          name,
+          FolderId: folderId || trace.FolderId,
+          id: { [sequelize.Op.ne]: trace.id } // Exclude the current trace
+        }
+      });
+      if (existingTrace) {
+        await t.rollback();
+        return res.status(409).json({ error: `A trace with the name "${name}" already exists in this folder.` });
+      }
+    }
 
     // Update trace name and folder
     trace.name = name;

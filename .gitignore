@@ -5,3 +5,9 @@
 # Dependencies
 /node_modules
 /server/node_modules
+
+# Database
+database.sqlite
+
+# Test Results
+/test-results/

@@ -37,6 +37,7 @@ export default class Trace {
         this.popup = L.popup({ closeButton: false });
         this.renaming = false;
         this.style = { weight: total.style.weight, opacity: total.style.opacity };
+        this.id = null;
 
         this.memory = [];
         this.at = -1;
@@ -425,13 +426,6 @@ export default class Trace {
 
         this.memory = [];
         this.at = -1;
-        this.autoSave();
-    }
-
-    autoSave() {
-        if (window.saveTrace) {
-            window.saveTrace(this);
-        }
     }
 
     draw() {
@@ -448,7 +442,6 @@ export default class Trace {
         if (this.getPoints().length == 0) {
             this.total.removeTrace(this.index);
         }
-        this.autoSave();
     }
 
     closePopup() {
