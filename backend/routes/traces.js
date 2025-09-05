@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { sequelize, User, Trace, Track, Segment, Point, Waypoint, Folder } = require('../models');
+const { sequelize, Sequelize, User, Trace, Track, Segment, Point, Waypoint, Folder } = require('../models');
 
 // Helper function to get or create a default user
 const getDefaultUser = async () => {
@@ -160,7 +160,7 @@ router.put('/:id', async (req, res) => {
         where: {
           name,
           FolderId: folderId || trace.FolderId,
-          id: { [sequelize.Op.ne]: trace.id } // Exclude the current trace
+          id: { [Sequelize.Op.ne]: trace.id } // Exclude the current trace
         }
       });
       if (existingTrace) {
